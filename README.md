@@ -5,7 +5,7 @@
 A simple Command-Line Interface (CLI) app built with Dart for managing your tasks.  
 This app supports basic CRUD operations and includes stretch features like search, reminders, timestamps, and exporting tasks to JSON.
 
----
+
 
 ## Features
 
@@ -18,7 +18,7 @@ This app supports basic CRUD operations and includes stretch features like searc
 - **Timestamps:** Track when tasks are created and updated.
 - **Export:** Save all tasks to a formatted JSON file.
 
----
+
 
 ## File Formats
 
@@ -36,7 +36,7 @@ Tasks are stored in `tasks.csv` with the following columns:
 ### `tasks_export.json`
 Tasks are exported in pretty-printed JSON for easy sharing or backup.
 
----
+
 
 ## How to Run
 
@@ -51,7 +51,7 @@ Tasks are exported in pretty-printed JSON for easy sharing or backup.
    dart run src/main.dart
    ```
 
----
+
 
 ## What I Learned
 
@@ -60,7 +60,7 @@ Tasks are exported in pretty-printed JSON for easy sharing or backup.
 - Learned how to format and parse dates for user-friendly display.
 - Added stretch features like search, reminders, and export.
 
----
+
 
 ## Challenges Faced
 
@@ -68,7 +68,7 @@ Tasks are exported in pretty-printed JSON for easy sharing or backup.
 - Designing a readable file format for tasks.
 - Ensuring data persists correctly between app runs.
 
----
+
 
 ## Improvements for the Future
 
@@ -77,5 +77,5 @@ Tasks are exported in pretty-printed JSON for easy sharing or backup.
 - Integrate with a database for larger scale.
 - Build a REST API backend for remote access.
 
----
+
 
