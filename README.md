@@ -1,50 +1,88 @@
 # To-Do List CLI App
 
-A simple Command-Line Interface (CLI) application built with Dart to manage your daily tasks. This project was created as part of a mini-challenge to practice core programming concepts.
+## Overview
 
-## Functionality
+A simple Command-Line Interface (CLI) app built with Dart for managing your tasks.  
+This app supports basic CRUD operations and includes stretch features like search, reminders, timestamps, and exporting tasks to JSON.
 
-This app provides full CRUD (Create, Read, Update, Delete) functionality for managing a to-do list:
+---
 
-* **Create**: Add a new task to your list.
-* **Read**: View all the tasks currently on your list with their completion status.
-* **Update**: Mark a task as completed.
-* **Delete**: Remove a task from your list.
+## Features
 
-## How to Run the App
+- **Add Tasks:** Create new tasks with optional reminders.
+- **View Tasks:** List all tasks in a readable format.
+- **Update Tasks:** Mark tasks as complete.
+- **Delete Tasks:** Remove tasks by ID.
+- **Search Tasks:** Find tasks by keyword.
+- **Reminders:** Set a date and time reminder for each task.
+- **Timestamps:** Track when tasks are created and updated.
+- **Export:** Save all tasks to a formatted JSON file.
 
-1.  **Clone the repository:**
-    ```bash
-    git clone <your-repo-url>
-    cd todo-cli-app
-    ```
+---
 
-2.  **Ensure you have the Dart SDK installed.** You can find installation instructions on the [official Dart website](https://dart.dev/get-dart).
+## File Formats
 
-3.  **Run the application from the terminal:**
-    ```bash
-    dart run src/main.dart
-    ```
+### `tasks.txt`
+Tasks are saved in a human-friendly format:
+```
+Task #1
+Title: Complete mini project
+Status: Pending
+Created: Sep 1, 2025 15:01
+Updated: Sep 1, 2025 15:01
+Reminder: Sep 2, 2025 10:30
 
-## Mini Report
+Task #2
+Title: Learn git and github
+Status: Pending
+Created: Sep 1, 2025 15:19
+Updated: Sep 1, 2025 15:19
+Reminder: -
+```
 
-### What I Learned
+### `tasks_export.json`
+Tasks are exported in pretty-printed JSON for easy sharing or backup.
 
-* **Dart Fundamentals**: This project was a great way to reinforce my understanding of Dart syntax, including loops (`while`), conditionals (`switch`), data structures (`List`), and classes.
-* **Handling User Input**: I learned how to read user input from the command line using `dart:io` and `stdin.readLineSync()`, as well as how to handle potential `null` values and parse strings into integers.
-* **Application Structure**: I practiced organizing code by separating the data model (`Task` class) from the main application logic, which makes the code cleaner and easier to maintain.
-* **Core CRUD Logic**: Implementing the four CRUD operations from scratch solidified my understanding of these fundamental patterns which are essential for any data-driven application.
+---
 
-### Challenges Faced
+## How to Run
 
-* **Input Validation**: A primary challenge was handling bad user input. For example, if a user entered text instead of a number for a task ID, the `int.parse()` would throw an error. I solved this by using `int.tryParse()`, which returns `null` on failure, allowing me to handle the error gracefully.
-* **State Management**: The list of tasks is stored in memory, which means it resets every time the app closes. This is simple, but it makes the app non-persistent.
+1. **Clone the repository:**
+   ```
+   git clone https://github.com/yourusername/todo_cli_app.git
+   cd todo_cli_app
+   ```
 
-### Possible Improvements
+2. **Run the app:**
+   ```
+   dart run src/main.dart
+   ```
 
-If I had more time, I would add the following features (the "Stretch Goals"):
+---
 
-* **Data Persistence**: Save the tasks to a file (like JSON or CSV) so the list is saved even after the application is closed. I would explore using `dart:io` for file I/O or a package like `hive` for a simple local database.
-* **More Robust Update**: Allow users to not just mark a task as done, but also to edit the title of the task.
-* **Input Validation**: Add more checks, for example, preventing a user from adding a task with an empty title.
-* **Search/Filter**: Implement a feature to search for tasks by a keyword.
+## What I Learned
+
+- Practiced Dart basics: loops, conditionals, data structures, file I/O.
+- Implemented CRUD logic and user input validation.
+- Learned how to format and parse dates for user-friendly display.
+- Added stretch features like search, reminders, and export.
+
+---
+
+## Challenges Faced
+
+- Handling date/time parsing and formatting for reminders.
+- Designing a readable file format for tasks.
+- Ensuring data persists correctly between app runs.
+
+---
+
+## Improvements for the Future
+
+- Add notifications for reminders.
+- Support editing task titles and reminders.
+- Integrate with a database for larger scale.
+- Build a REST API backend for remote access.
+
+---
+
