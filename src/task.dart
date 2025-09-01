@@ -6,6 +6,7 @@ class Task {
   bool isDone;
   DateTime createdAt;
   DateTime updatedAt;
+  DateTime? reminderAt;
 
   Task({
     required this.id,
@@ -13,11 +14,13 @@ class Task {
     this.isDone = false,
     DateTime? createdAt,
     DateTime? updatedAt,
+    this.reminderAt,
   })  : createdAt = createdAt ?? DateTime.now(),
         updatedAt = updatedAt ?? DateTime.now();
 
   @override
   String toString() {
-    return '$id. $title [${isDone ? "Done" : "Pending"}] (Created: ${createdAt.toIso8601String()}, Updated: ${updatedAt.toIso8601String()})';
+    final reminderStr = reminderAt != null ? ', Reminder: ${reminderAt!.toIso8601String()}' : '';
+    return '$id. $title [${isDone ? "Done" : "Pending"}] (Created: ${createdAt.toIso8601String()}, Updated: ${updatedAt.toIso8601String()}$reminderStr)';
   }
 }

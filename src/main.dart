@@ -82,9 +82,26 @@ void addTask() {
   print('Enter the task title:');
   final title = stdin.readLineSync();
 
+  DateTime? reminderAt;
+  print('Set a reminder? (YYYY-MM-DD HH:MM, or leave blank):');
+  final reminderInput = stdin.readLineSync();
+  if (reminderInput != null && reminderInput.isNotEmpty) {
+    try {
+      reminderAt = DateTime.parse(reminderInput.replaceFirst(' ', 'T'));
+    } catch (_) {
+      print('⚠️ Invalid date format. Reminder not set.');
+    }
+  }
+
   if (title != null && title.isNotEmpty) {
     final now = DateTime.now();
-    final newTask = Task(id: _nextId++, title: title, createdAt: now, updatedAt: now);
+    final newTask = Task(
+      id: _nextId++,
+      title: title,
+      createdAt: now,
+      updatedAt: now,
+      reminderAt: reminderAt,
+    );
     tasks.add(newTask);
     saveTasks();
     print('✅ Task added successfully!');
@@ -157,7 +174,7 @@ void deleteTask() {
 void saveTasks() {
   final file = File(tasksFile);
   final lines = tasks.map((t) =>
-    '${t.id}|${t.title}|${t.isDone}|${t.createdAt.toIso8601String()}|${t.updatedAt.toIso8601String()}'
+    '${t.id}|${t.title}|${t.isDone}|${t.createdAt.toIso8601String()}|${t.updatedAt.toIso8601String()}|${t.reminderAt?.toIso8601String() ?? ''}'
   ).toList();
   file.writeAsStringSync(lines.join('\n'));
 }
@@ -176,6 +193,7 @@ void loadTasks() {
       final isDone = parts[2] == 'true';
       final createdAt = DateTime.tryParse(parts[3]);
       final updatedAt = DateTime.tryParse(parts[4]);
+      final reminderAt = parts.length > 5 && parts[5].isNotEmpty ? DateTime.tryParse(parts[5]) : null;
       if (id != null && createdAt != null && updatedAt != null) {
         tasks.add(Task(
           id: id,
@@ -183,6 +201,7 @@ void loadTasks() {
           isDone: isDone,
           createdAt: createdAt,
           updatedAt: updatedAt,
+          reminderAt: reminderAt,
         ));
         if (id >= _nextId) _nextId = id + 1;
       }
