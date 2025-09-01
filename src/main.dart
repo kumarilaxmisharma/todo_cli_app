@@ -173,10 +173,25 @@ void deleteTask() {
 // Save tasks to file
 void saveTasks() {
   final file = File(tasksFile);
-  final lines = tasks.map((t) =>
-    '${t.id}|${t.title}|${t.isDone}|${t.createdAt.toIso8601String()}|${t.updatedAt.toIso8601String()}|${t.reminderAt?.toIso8601String() ?? ''}'
-  ).toList();
+  final lines = <String>[];
+  for (var t in tasks) {
+    lines.add('Task #${t.id}');
+    lines.add('Title: ${t.title}');
+    lines.add('Status: ${t.isDone ? "Done" : "Pending"}');
+    lines.add('Created: ${_formatFriendlyDate(t.createdAt)}');
+    lines.add('Updated: ${_formatFriendlyDate(t.updatedAt)}');
+    lines.add('Reminder: ${t.reminderAt != null ? _formatFriendlyDate(t.reminderAt!) : "-"}');
+    lines.add(''); // Blank line between tasks
+  }
   file.writeAsStringSync(lines.join('\n'));
+}
+
+String _formatFriendlyDate(DateTime dt) {
+  final months = [
+    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+  ];
+  return '${months[dt.month - 1]} ${dt.day}, ${dt.year} ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
 }
 
 // Load tasks from file
@@ -217,7 +232,9 @@ void exportTasksToJson() {
     'isDone': t.isDone,
     'createdAt': t.createdAt.toIso8601String(),
     'updatedAt': t.updatedAt.toIso8601String(),
+    'reminderAt': t.reminderAt?.toIso8601String() ?? ''
   }).toList();
-  file.writeAsStringSync(jsonEncode(jsonList));
+  final encoder = JsonEncoder.withIndent('  ');
+  file.writeAsStringSync(encoder.convert(jsonList));
   print('✅ Tasks exported to tasks_export.json');
 }
