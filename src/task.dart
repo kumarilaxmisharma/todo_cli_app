@@ -1,16 +1,23 @@
 // src/task.dart
 
 class Task {
-  String title;
+  final int id;
+  final String title;
   bool isDone;
-  final int id; // Unique ID for each task
+  DateTime createdAt;
+  DateTime updatedAt;
 
-  // Constructor
-  Task({required this.id, required this.title, this.isDone = false});
+  Task({
+    required this.id,
+    required this.title,
+    this.isDone = false,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  })  : createdAt = createdAt ?? DateTime.now(),
+        updatedAt = updatedAt ?? DateTime.now();
 
-  // A method to easily display the task
   @override
   String toString() {
-    return '$id. [${isDone ? 'x' : ' '}] $title';
+    return '$id. $title [${isDone ? "Done" : "Pending"}] (Created: ${createdAt.toIso8601String()}, Updated: ${updatedAt.toIso8601String()})';
   }
 }

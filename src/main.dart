@@ -2,13 +2,16 @@
 
 import 'dart:io';
 import 'task.dart';
+import 'dart:convert';
+
+final String tasksFile = 'tasks.txt';
 
 // In-memory "database" to store tasks
 final List<Task> tasks = [];
 int _nextId = 1; // To assign unique IDs to tasks
 
 void main() {
-  // Main application loop
+  loadTasks();
   while (true) {
     showMenu();
     final choice = stdin.readLineSync();
@@ -27,13 +30,19 @@ void main() {
         deleteTask();
         break;
       case '5':
+        searchTasks();
+        break;
+      case '6':
+        exportTasksToJson();
+        break;
+      case '7':
         print('👋 Exiting application. Goodbye!');
-        return; // Exit the main function, terminating the program
+        return;
       default:
         print('❌ Invalid choice, please try again.');
     }
     print('\nPress Enter to continue...');
-    stdin.readLineSync(); // Pause until user presses Enter
+    stdin.readLineSync();
   }
 }
 
@@ -43,10 +52,30 @@ void showMenu() {
   print('2. View all tasks');
   print('3. Update a task (mark as done)');
   print('4. Delete a task');
-  print('5. Exit');
+  print('5. Search Tasks');
+  print('6. Export tasks to JSON');
+  print('7. Exit');
   print('===========================');
   print('Enter your choice: ');
 }
+
+void searchTasks() {
+  print('Enter keyword to search:');
+  final keyword = stdin.readLineSync();
+  if (keyword == null || keyword.isEmpty) {
+    print('⚠️ Keyword cannot be empty.');
+    return;
+  }
+  final results = tasks.where((task) => task.title.toLowerCase().contains(keyword.toLowerCase())).toList();
+  if (results.isEmpty) {
+    print('No tasks found matching "$keyword".');
+  } else {
+    print('\n--- Search Results ---');
+    results.forEach(print);
+    print('----------------------');
+  }
+}
+
 
 // CREATE
 void addTask() {
@@ -54,8 +83,10 @@ void addTask() {
   final title = stdin.readLineSync();
 
   if (title != null && title.isNotEmpty) {
-    final newTask = Task(id: _nextId++, title: title);
+    final now = DateTime.now();
+    final newTask = Task(id: _nextId++, title: title, createdAt: now, updatedAt: now);
     tasks.add(newTask);
+    saveTasks();
     print('✅ Task added successfully!');
   } else {
     print('⚠️ Task title cannot be empty.');
@@ -90,6 +121,8 @@ void updateTask() {
   try {
     final taskToUpdate = tasks.firstWhere((task) => task.id == id);
     taskToUpdate.isDone = true;
+    taskToUpdate.updatedAt = DateTime.now();
+    saveTasks();
     print('✅ Task #$id marked as complete.');
   } catch (e) {
     print('❌ Task with ID #$id not found.');
@@ -112,9 +145,60 @@ void deleteTask() {
 
   final initialLength = tasks.length;
   tasks.removeWhere((task) => task.id == id);
+  saveTasks();
   if (tasks.length < initialLength) {
     print('✅ Task #$id deleted successfully.');
   } else {
     print('❌ Task with ID #$id not found.');
   }
+}
+
+// Save tasks to file
+void saveTasks() {
+  final file = File(tasksFile);
+  final lines = tasks.map((t) =>
+    '${t.id}|${t.title}|${t.isDone}|${t.createdAt.toIso8601String()}|${t.updatedAt.toIso8601String()}'
+  ).toList();
+  file.writeAsStringSync(lines.join('\n'));
+}
+
+// Load tasks from file
+void loadTasks() {
+  final file = File(tasksFile);
+  if (!file.existsSync()) return;
+  final lines = file.readAsLinesSync();
+  tasks.clear();
+  for (var line in lines) {
+    final parts = line.split('|');
+    if (parts.length == 5) {
+      final id = int.tryParse(parts[0]);
+      final title = parts[1];
+      final isDone = parts[2] == 'true';
+      final createdAt = DateTime.tryParse(parts[3]);
+      final updatedAt = DateTime.tryParse(parts[4]);
+      if (id != null && createdAt != null && updatedAt != null) {
+        tasks.add(Task(
+          id: id,
+          title: title,
+          isDone: isDone,
+          createdAt: createdAt,
+          updatedAt: updatedAt,
+        ));
+        if (id >= _nextId) _nextId = id + 1;
+      }
+    }
+  }
+}
+
+void exportTasksToJson() {
+  final file = File('tasks_export.json');
+  final jsonList = tasks.map((t) => {
+    'id': t.id,
+    'title': t.title,
+    'isDone': t.isDone,
+    'createdAt': t.createdAt.toIso8601String(),
+    'updatedAt': t.updatedAt.toIso8601String(),
+  }).toList();
+  file.writeAsStringSync(jsonEncode(jsonList));
+  print('✅ Tasks exported to tasks_export.json');
 }
