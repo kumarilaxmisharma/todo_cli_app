@@ -190,13 +190,7 @@ void saveTasks() {
   file.writeAsStringSync(lines.join('\n'));
 }
 
-// String _formatFriendlyDate(DateTime dt) {
-//   final months = [
-//     'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-//     'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-//   ];
-//   return '${months[dt.month - 1]} ${dt.day}, ${dt.year} ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
-// }
+
 
 // Load tasks from file
 void loadTasks() {

@@ -22,22 +22,15 @@ This app supports basic CRUD operations and includes stretch features like searc
 
 ## File Formats
 
-### `tasks.txt`
-Tasks are saved in a human-friendly format:
+### `tasks.csv`
+Tasks are stored in `tasks.csv` with the following columns:
 ```
-Task #1
-Title: Complete mini project
-Status: Pending
-Created: Sep 1, 2025 15:01
-Updated: Sep 1, 2025 15:01
-Reminder: Sep 2, 2025 10:30
-
-Task #2
-Title: Learn git and github
-Status: Pending
-Created: Sep 1, 2025 15:19
-Updated: Sep 1, 2025 15:19
-Reminder: -
+- id: Unique task ID
+- title: Task description
+- isDone: Completion status (true/false)
+- createdAt: Creation timestamp (ISO format)
+- updatedAt: Last update timestamp (ISO format)
+- reminderAt: Optional reminder timestamp (ISO format)
 ```
 
 ### `tasks_export.json`
