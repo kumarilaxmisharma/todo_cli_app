@@ -4,7 +4,7 @@ import 'dart:io';
 import 'task.dart';
 import 'dart:convert';
 
-final String tasksFile = 'tasks.txt';
+final String tasksFile = 'tasks.csv';
 
 // In-memory "database" to store tasks
 final List<Task> tasks = [];
@@ -60,22 +60,28 @@ void showMenu() {
 }
 
 void searchTasks() {
-  print('Enter keyword to search:');
-  final keyword = stdin.readLineSync();
+  print('Enter keyword to search (matches title or status):');
+  final keyword = stdin.readLineSync()?.trim().toLowerCase();
   if (keyword == null || keyword.isEmpty) {
     print('⚠️ Keyword cannot be empty.');
     return;
   }
-  final results = tasks.where((task) => task.title.toLowerCase().contains(keyword.toLowerCase())).toList();
+  final results = tasks.where((task) {
+    final title = task.title.trim().toLowerCase();
+    final status = task.isDone ? "done" : "pending";
+    return title.contains(keyword) || status.contains(keyword);
+  }).toList();
+
   if (results.isEmpty) {
     print('No tasks found matching "$keyword".');
   } else {
     print('\n--- Search Results ---');
-    results.forEach(print);
+    for (var t in results) {
+      print(t);
+    }
     print('----------------------');
   }
 }
-
 
 // CREATE
 void addTask() {
@@ -174,25 +180,23 @@ void deleteTask() {
 void saveTasks() {
   final file = File(tasksFile);
   final lines = <String>[];
+  // CSV header
+  lines.add('id,title,isDone,createdAt,updatedAt,reminderAt');
   for (var t in tasks) {
-    lines.add('Task #${t.id}');
-    lines.add('Title: ${t.title}');
-    lines.add('Status: ${t.isDone ? "Done" : "Pending"}');
-    lines.add('Created: ${_formatFriendlyDate(t.createdAt)}');
-    lines.add('Updated: ${_formatFriendlyDate(t.updatedAt)}');
-    lines.add('Reminder: ${t.reminderAt != null ? _formatFriendlyDate(t.reminderAt!) : "-"}');
-    lines.add(''); // Blank line between tasks
+    lines.add(
+      '${t.id},"${t.title.replaceAll('"', '""')}",${t.isDone},${t.createdAt.toIso8601String()},${t.updatedAt.toIso8601String()},${t.reminderAt?.toIso8601String() ?? ''}'
+    );
   }
   file.writeAsStringSync(lines.join('\n'));
 }
 
-String _formatFriendlyDate(DateTime dt) {
-  final months = [
-    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-  ];
-  return '${months[dt.month - 1]} ${dt.day}, ${dt.year} ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
-}
+// String _formatFriendlyDate(DateTime dt) {
+//   final months = [
+//     'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+//     'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+//   ];
+//   return '${months[dt.month - 1]} ${dt.day}, ${dt.year} ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
+// }
 
 // Load tasks from file
 void loadTasks() {
@@ -200,28 +204,34 @@ void loadTasks() {
   if (!file.existsSync()) return;
   final lines = file.readAsLinesSync();
   tasks.clear();
-  for (var line in lines) {
-    final parts = line.split('|');
-    if (parts.length == 5) {
-      final id = int.tryParse(parts[0]);
-      final title = parts[1];
-      final isDone = parts[2] == 'true';
-      final createdAt = DateTime.tryParse(parts[3]);
-      final updatedAt = DateTime.tryParse(parts[4]);
-      final reminderAt = parts.length > 5 && parts[5].isNotEmpty ? DateTime.tryParse(parts[5]) : null;
-      if (id != null && createdAt != null && updatedAt != null) {
-        tasks.add(Task(
-          id: id,
-          title: title,
-          isDone: isDone,
-          createdAt: createdAt,
-          updatedAt: updatedAt,
-          reminderAt: reminderAt,
-        ));
-        if (id >= _nextId) _nextId = id + 1;
-      }
+  if (lines.isEmpty) return;
+  for (var i = 1; i < lines.length; i++) { // Skip header
+    final parts = _parseCsvLine(lines[i]);
+    if (parts.length < 6) continue;
+    final id = int.tryParse(parts[0]);
+    final title = parts[1];
+    final isDone = parts[2] == 'true';
+    final createdAt = DateTime.tryParse(parts[3]);
+    final updatedAt = DateTime.tryParse(parts[4]);
+    final reminderAt = parts[5].isNotEmpty ? DateTime.tryParse(parts[5]) : null;
+    if (id != null && createdAt != null && updatedAt != null) {
+      tasks.add(Task(
+        id: id,
+        title: title,
+        isDone: isDone,
+        createdAt: createdAt,
+        updatedAt: updatedAt,
+        reminderAt: reminderAt,
+      ));
+      if (id >= _nextId) _nextId = id + 1;
     }
   }
+}
+
+// Helper to parse CSV line (handles quoted fields)
+List<String> _parseCsvLine(String line) {
+  final regex = RegExp(r'"([^"]*)"|([^,]+)');
+  return regex.allMatches(line).map((m) => m.group(1) ?? m.group(2) ?? '').toList();
 }
 
 void exportTasksToJson() {
